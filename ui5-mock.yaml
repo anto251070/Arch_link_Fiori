@@ -1,0 +1,53 @@
+specVersion: "3.1"
+metadata:
+  name: ch.unige.lrdocument
+type: application
+server:
+  customMiddleware:
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        ignoreCertError: false
+        ui5:
+          path:
+            - /resources
+            - /test-resources
+          url: https://ui5.sap.com
+        backend:
+          - path: /sap
+            url: http://rubis-s4d.unige.ch:443
+            client: "200"
+            destination: UNIGE_S4D_200
+    - name: fiori-tools-appreload
+      afterMiddleware: compression
+      configuration:
+        port: 35729
+        path: webapp
+        delay: 300
+    - name: sap-fe-mockserver
+      beforeMiddleware: csp
+      configuration:
+        mountPath: /
+        services:
+          - urlPath: /sap/opu/odata/sap/ZUI_FUND_ARCH_OBJECTS_U_O2
+            metadataPath: ./webapp/localService/metadata.xml
+            mockdataPath: ./webapp/localService/data
+            generateMockData: true
+        annotations: []
+        service:
+          - urlPath: /sap/opu/odata/sap/ZUI_FUND_ARCH_OBJECTS_U_O2
+            generateMockData: true
+            metadataXmlPath: ./webapp/localService/metadata.xml
+            mockdataRootPath: ./webapp/localService/data
+          - urlPath: /sap/opu/odata/sap/ZSB_GESTION_ACCES/
+            metadataXmlPath: ./webapp/localService/ZSB_GESTION_ACCES.xml/metadata.xml
+            mockdataRootPath: ./webapp/localService/ZSB_GESTION_ACCES.xml/mockdata
+            generateMockData: true
+          - urlPath: /sap/opu/odata/sap/Z_BC_ARCH_DOC_SRV/
+            metadataXmlPath: ./webapp/localService/ZSB_GESTION_ACCES.xml/metadata.xml
+            mockdataRootPath: ./webapp/localService/ZSB_GESTION_ACCES.xml/mockdata
+            generateMockData: true
+          - urlPath: /sap/opu/odata/sap/ZUI_FUND_ARCH_OBJECTS_U_O2/
+            metadataXmlPath: ./webapp/localService/metadata.xml
+            mockdataRootPath: ./webapp/localService/mockdata
+            generateMockData: true
