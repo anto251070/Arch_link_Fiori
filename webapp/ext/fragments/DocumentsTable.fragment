@@ -1,0 +1,35 @@
+<core:FragmentDefinition xmlns:core="sap.ui.core" xmlns="sap.m">
+    <Table id="DocumentsTable" items="{ArchiveObjects>/toFiles}" noDataText="Aucun document">
+        <columns>
+            <Column id="DocumentID_col" headerMenu="menu">
+                <header>
+                    <Text id="_IDDocumentID" text="ID Document"/>
+                </header>
+            </Column>
+            <Column id="FileName_col" headerMenu="menu">
+                <Text id="_IDDocumentFileName" text="Nom du fichier"/>
+            </Column>
+            <Column id="DocumentType_col" headerMenu="menu">
+                <Text id="_IDDocumentType" text="Type de document"/>
+            </Column>
+            <Column id="DocumentDate_col" headerMenu="menu">
+                <Text id="_IDDocumentDate" text="Archivé le"/>
+            </Column>
+            <Column id="DocumentLink_col" hAlign="End" headerMenu="menu">
+                <Text id="_IDDocumentLink" text="Lien du document"/>
+            </Column>
+        </columns>    
+        
+        <items>
+            <ColumnListItem id="_IDListDocument">
+                <cells>
+                    <Text id="_IDObjectId" text="{ArchiveObjects>ObjectId}"/>
+                    <Text id="_IDFileName" text="{ArchiveObjects>FileName}"/>
+                    <Text id="_IDArchiveObject" text="{ArchiveObjects>ArchiveObject}"/>
+                    <Text id="_IDArchiveDate" text="{ArchiveObjects>ArchiveDate}"/>
+                    <Button id="_IDButtonLinkPress" icon="sap-icon://doc-attachment" press="onButtonLinkPress"/>
+                </cells>
+            </ColumnListItem>
+        </items>
+    </Table>
+</core:FragmentDefinition>
