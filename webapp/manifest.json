@@ -1,0 +1,286 @@
+{
+    "_version": "1.59.0",
+    "sap.app": {
+        "id": "ch.unige.lrdocument",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "0.0.1"
+        },
+        "title": "{{appTitle}}",
+        "description": "{{appDescription}}",
+        "resources": "resources.json",
+        "sourceTemplate": {
+            "id": "@sap/generator-fiori:lrop",
+            "version": "1.11.5",
+            "toolsId": "8fed21c5-675c-4c37-8e8f-01ae3c43d68c"
+        },
+        "dataSources": {
+            "mainService": {
+                "uri": "/sap/opu/odata/sap/ZUI_FUND_ARCH_OBJECTS_U_O2/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [
+                        "ZUI_FUND_ARCH_OBJECTS_U_O2_VAN",
+                        "annotation"
+                    ],
+                    "localUri": "localService/metadata.xml",
+                    "odataVersion": "2.0"
+                }
+            },
+            "ZUI_FUND_ARCH_OBJECTS_U_O2_VAN": {
+                "uri": "/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZUI_FUND_ARCH_OBJECTS_U_O2_VAN',Version='0001')/$value/",
+                "type": "ODataAnnotation",
+                "settings": {
+                    "localUri": "localService/ZUI_FUND_ARCH_OBJECTS_U_O2_VAN.xml"
+                }
+            },
+            "annotation": {
+                "type": "ODataAnnotation",
+                "uri": "annotations/annotation.xml",
+                "settings": {
+                    "localUri": "annotations/annotation.xml"
+                }
+            },
+            "ZSB_GESTION_ACCES": {
+                "uri": "/sap/opu/odata/sap/ZSB_GESTION_ACCES/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [
+                        "ZSB_GESTION_ACCES_Annotation"
+                    ],
+                    "localUri": "localService/ZSB_GESTION_ACCES.xml/metadata.xml",
+                    "odataVersion": "2.0"
+                }
+            },
+            "ZSB_GESTION_ACCES_Annotation": {
+                "uri": "/destinations/UNIGE_S4D_200/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZSB_GESTION_ACCES_VAN',Version='0001')/$value/",
+                "type": "ODataAnnotation",
+                "settings": {
+                    "localUri": "localService/ZSB_GESTION_ACCES.xml/ZSB_GESTION_ACCES_Annotation.xml"
+                }
+            },
+            "Z_BC_ARCH_DOC_SRV": {
+                "uri": "/sap/opu/odata/sap/Z_BC_ARCH_DOC_SRV/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [
+                        "Z_BC_ARCH_DOC_SRV_Annotation"
+                    ],
+                    "localUri": "localService/ZSB_GESTION_ACCES.xml/metadata.xml",
+                    "odataVersion": "2.0"
+                }
+            },
+            "ArchiveObjects": {
+                "uri": "model/ArchiveObjects.json",
+                "type": "JSON"
+            }
+        },
+        "crossNavigation": {
+            "inbounds": {
+                "Document-View": {
+                    "semanticObject": "Document",
+                    "action": "View",
+                    "title": "{{flpTitle}}",
+                    "signature": {
+                        "parameters": {},
+                        "additionalParameters": "allowed"
+                    }
+                }
+            }
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "flexEnabled": true,
+        "dependencies": {
+            "minUI5Version": "1.120.1",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.ushell": {},
+                "sap.f": {},
+                "sap.ui.comp": {},
+                "sap.ui.generic.app": {},
+                "sap.suite.ui.generic.template": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "ch.unige.lrdocument.i18n.i18n"
+                }
+            },
+            "": {
+                "dataSource": "mainService",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false,
+                    "metadataUrlParams": {
+                        "sap-value-list": "none"
+                    }
+                }
+            },
+            "@i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "uri": "i18n/i18n.properties"
+            },
+            "ZSB_GESTION_ACCES": {
+                "dataSource": "ZSB_GESTION_ACCES",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false,
+                    "metadataUrlParams": {
+                        "sap-value-list": "none"
+                    }
+                }
+            },
+            "Z_BC_ARCH_DOC_SRV": {
+                "dataSource": "Z_BC_ARCH_DOC_SRV",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false,
+                    "metadataUrlParams": {
+                        "sap-value-list": "none"
+                    }
+                }
+            },
+            "ArchiveObjects": {
+                "type": "sap.ui.model.json.JSONModel",
+                "dataSource": "ArchiveObjects"
+            }
+        },
+        "resources": {
+            "css": []
+        },
+        "routing": {
+            "config": {},
+            "routes": [],
+            "targets": {}
+        },
+        "extends": {
+            "extensions": {
+                "sap.ui.controllerExtensions": {
+                    "sap.suite.ui.generic.template.ListReport.view.ListReport": {
+                        "controllerName": "ch.unige.lrdocument.ext.controller.ListReportExt"
+                    },
+                    "sap.suite.ui.generic.template.ObjectPage.view.Details": {
+                        "controllerName": "ch.unige.lrdocument.ext.controller.ObjectPageExt",
+                        "sap.ui.generic.app": {
+                            "ZUI_FUND_ARCH_OBJECTS_U_O2": {
+                                "EntitySet": "ZC_ARCH_OBJECTS_CHILD",
+                                "Header": {
+                                    "Actions": {
+                                        "onPressTest": {
+                                            "id": "onPressTestButton",
+                                            "text": "Test",
+                                            "press": "OnButtonLinkPress",
+                                            "requiresSelection": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "sap.ui.viewExtensions": {
+                    "sap.suite.ui.generic.template.ListReport.view.ListReport": {},
+                    "sap.suite.ui.generic.template.ObjectPage.view.Details": {
+                        "ResponsiveTableColumnsExtension|ZC_ARCH_OBJECTS_CHILD|Documents": {
+                            "className": "sap.ui.core.Fragment",
+                            "fragmentName": "ch.unige.lrdocument.ext.fragments.ResponsiveTableColumns",
+                            "type": "XML"
+                        },
+                        "ResponsiveTableCellsExtension|ZC_ARCH_OBJECTS_CHILD|Documents": {
+                            "className": "sap.ui.core.Fragment",
+                            "fragmentName": "ch.unige.lrdocument.ext.fragments.ResponsiveTableCells",
+                            "type": "XML"
+                        },
+                        "ReplaceFacet|ZC_FUNDS_ARCH_OBJECTS|ATTACH": {
+                            "type": "XML",
+                            "className": "sap.ui.core.Fragment",
+                            "fragmentName": "ch.unige.lrdocument.ext.fragments.DocumentsTable",
+                            "sap.ui.generic.app": {
+                                "title": "Liste des documents"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "sap.ui.generic.app": {
+        "_version": "1.3.0",
+        "settings": {
+            "forceGlobalRefresh": false,
+            "objectPageHeaderType": "Dynamic",
+            "considerAnalyticalParameters": true,
+            "showDraftToggle": false
+        },
+        "pages": {
+            "ListReport|ZC_FUNDS_ARCH_OBJECTS": {
+                "entitySet": "ZC_FUNDS_ARCH_OBJECTS",
+                "component": {
+                    "name": "sap.suite.ui.generic.template.ListReport",
+                    "list": true,
+                    "settings": {
+                        "condensedTableLayout": true,
+                        "smartVariantManagement": true,
+                        "enableTableFilterInPageVariant": true,
+                        "filterSettings": {
+                            "dateSettings": {
+                                "useDateRange": true
+                            }
+                        },
+                        "dataLoadSettings": {
+                            "loadDataOnAppLaunch": "always"
+                        }
+                    }
+                },
+                "pages": {
+                    "ObjectPage|ZC_FUNDS_ARCH_OBJECTS": {
+                        "entitySet": "ZC_FUNDS_ARCH_OBJECTS",
+                        "defaultLayoutTypeIfExternalNavigation": "MidColumnFullScreen",
+                        "component": {
+                            "name": "sap.suite.ui.generic.template.ObjectPage"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "sap.fiori": {
+        "registrationIds": [],
+        "archeType": "transactional"
+    },
+    "sap.cloud": {
+        "public": true,
+        "service": "chunigelrdocument"
+    }
+}
