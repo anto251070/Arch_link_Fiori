@@ -1,0 +1,290 @@
+sap.ui.define([
+    "sap/ui/model/Filter",
+    "sap/ui/comp/smartfilterbar/SmartFilterBar",
+    "sap/ui/core/format/NumberFormat",
+    "sap/m/MessageToast",
+], function (Filter, SmartFilterBar,  NumberFormat, MessageToast) {
+    "use strict";
+
+    return {
+
+        onInit: function () {
+
+            const url_user = this.getBaseURL() + "/user-api/currentUser";
+            var that = this;
+            var oUserModel = {
+              firstname: "",
+              lastname: "",
+              email: "",
+              name: "",
+              displayName: ""
+           };
+
+            $.ajax({
+                method: "GET",
+                url: url_user,
+                async: false,
+                success: function (result, xhr, data) {
+                //var user_name = data.responseJSON.name;
+
+                oUserModel = result ;
+                that.getView().setModel(oUserModel, "userInfo");
+
+            
+              }
+                
+            });
+
+            this._UniqueId = oUserModel.name;
+         
+            
+            // Access Controle --> OTP
+            var su = this.getOwnerComponent().getModel().sServiceUrl  ;
+            this.oODataModel = new sap.ui.model.odata.ODataModel(su, true);
+            var oODataJSONModelOTP = new sap.ui.model.json.JSONModel();
+            su = su + "/ZC_FUNDS_ARCH_OBJECTS";
+            
+            var aFilters = [];
+            aFilters.push(new Filter("UniqueId", sap.ui.model.FilterOperator.EQ, oUserModel.name));
+            // aFilters.push(new Filter("Object", sap.ui.model.FilterOperator.NotContains, "G-"));
+
+
+            this.oODataModel.read("/ZC_FUNDS_ARCH_OBJECTS" ,{
+                    filters: aFilters,
+                    success: 
+                            function (oData, oResponse) {
+                                //  set the odata JSON as data of JSON model
+                                oODataJSONModelOTP.setData(oData);
+                                var oFund = JSON.parse(JSON.stringify(oODataJSONModelOTP.getData()));
+                            
+                                // Create filter OTP
+                                that._set_Funds_Filter(oFund);
+                        
+                            }
+                });
+
+             // Access Controle --> OTP --> END
+
+
+            //Model userInfo
+            sap.ui.getCore().setModel(oUserModel, "userInfo");
+            this._UniqueId = oUserModel.name;
+
+           
+           //Model pour les pièces jointes => ArchiveObjects
+            var oArchiveObjects = this.getOwnerComponent().getModel("ArchiveObjects");
+            sap.ui.getCore().setModel(oArchiveObjects, "ArchiveObjects");
+
+
+          },
+
+        /**
+         * Triggered by the table's 'updateFinished' event: after new table
+         * data is available, this handler method updates the table counter.
+         * This should only happen if the update was successful, which is
+         * why this handler is attached to 'updateFinished' and not to the
+         * table's list binding's 'dataReceived' method.
+         * @param {sap.ui.base.Event} oEvent the update finished event
+         * @public
+         */
+
+        onBeforeRendering: function ( )  {
+
+          let oControlTable = this.getView().byId("listReport");
+          var oTable = oControlTable.getTable(); //The table instance    
+          var oBinding = oTable.getBinding("items");
+          var oBindingInfo = oTable.getBindingInfo("items");
+
+          var aFilters = [];
+
+
+          aFilters.push(new Filter("UniqueId", sap.ui.model.FilterOperator.EQ, this._UniqueId));
+       
+
+          oTable.addEventDelegate({ })
+ 
+
+
+       },
+
+
+
+      onListNavigationExtension: function (oEvent) {
+       // get JSON Moodel
+        var oArchiveObjects = sap.ui.getCore().getModel("ArchiveObjects");
+        var oFiles = oArchiveObjects.getProperty("/toFiles");
+        oFiles = [];
+
+
+        let oContext = oEvent.getSource().getBindingContext();
+        let oData = oContext.getObject();
+        var su = this.getOwnerComponent().getModel().sServiceUrl  ; 
+
+        this.oODataModel = new sap.ui.model.odata.ODataModel(su, true);
+        var oODataDocuments = new sap.ui.model.json.JSONModel();
+
+        var key_query = 'ZC_FUNDS_ARCH_OBJECTS(PerimetreAnalytique=' + "'" + oData.PerimetreAnalytique + "'" + ',SapObject=' + "'" + oData.SapObject + "'" + ',Fund=' + "'" 
+                        + oData.Fund + "'" + ',RespID=' + "'" + ')/to_ArchiveObjects';             
+
+
+        var sComponentId = sap.ui.core.Component.getOwnerIdFor(this.getView());
+        const component = sap.ui.getCore().getComponent(sComponentId);
+
+        this.vTypObjetResp = oData.TypeObjet;
+        this.vRespID       = oData.RespID;
+        this.vFund         = oData.Fund;
+
+        var that = this;
+
+        this.oODataModel.read("/ZC_ARCH_OBJECTS_CHILD" ,{
+          //filters: aFilters,
+          success: 
+                  function (oData, oResponse) {
+                      //  set the odata JSON as data of JSON model
+                      oODataDocuments.setData(oData);
+                      var oDocuments = JSON.parse(JSON.stringify(oODataDocuments.getData()));
+                  
+                      debugger;
+
+                                            for (var d = oDocuments.results.length - 1; d >= 0; d--) {
+                                              if(oDocuments.results[d].Parameter2 === that.vFund){
+                                                if((that.vTypObjetResp === 'OTP' && oDocuments.results[d].RespID === that.vRespID) || that.vTypObjetResp === 'FDS') {
+                                                var oDocumentURL = that.getBaseURL() + oDocuments.results[d].ArchiveUrl
+                                                oDocuments.results[d].ArchiveUrl = oDocumentURL;
+                                              }  else {
+                                                oDocuments.results.splice(d, 1);
+                                              } 
+                                            }  else {
+                                              oDocuments.results.splice(d, 1);
+                                            }                                
+                                          }
+
+                                          oArchiveObjects.setProperty("/toFiles", oDocuments.results);
+                                          
+                                          //   syncronize XML View with  Json model  
+                                          oArchiveObjects.refresh();
+                  }
+      });
+
+
+
+
+
+        /*this.oODataModel.read(key_query ,{
+                                success:
+                                        function (oData, oResponse) {
+                                          oODataDocuments.setData(oData);
+                                            var oDocuments = JSON.parse(JSON.stringify(oODataDocuments.getData()));
+
+                                            debugger;
+
+                                            //let aSimpleDoc = [];
+                                            //let sSimpleDoc = {};
+                                            for (var d = oDocuments.results.length - 1; d >= 0; d--) {
+                                                if((that.vTypObjetResp === 'OTP' && oDocuments.results[d].RespID === that.vRespID) || that.vTypObjetResp === 'FDS') {
+                                                var oDocumentURL = that.getBaseURL() + oDocuments.results[d].ArchiveUrl
+                                                oDocuments.results[d].ArchiveUrl = oDocumentURL;
+                                                //sSimpleDoc.ArchiveDate   = oDocuments.results[d].ArchiveDate;
+                                                //sSimpleDoc.ArchiveDocId  = oDocuments.results[d].ArchiveDocId;
+                                                //sSimpleDoc.ArchiveId     = oDocuments.results[d].ArchiveId;
+                                                //sSimpleDoc.ArchiveObject = oDocuments.results[d].ArchiveObject;
+                                                //sSimpleDoc.ArchiveUrl    = oDocuments.results[d].ArchiveUrl;
+                                                //aSimpleDoc.push(sSimpleDoc);
+                                                //sSimpleDoc = {};
+                                              }  else {
+                                                oDocuments.results.splice(d, 1);
+                                              }                                   
+                                          }
+
+                                          //let aSingleDocuments = [...new Set(aSimpleDoc)];
+                                          //let aSingleDocuments = [];
+                                          //aSimpleDoc.forEach((element) => {
+                                            //if (!aSingleDocuments.includes(element)) {
+                                              //aSingleDocuments.push(element);
+                                            //}
+                                          //});
+
+                                          //oDocuments.results.forEach((element) => {
+                                            //if (!aSingleDocuments.includes(element)) {
+                                              //aSingleDocuments.push(element);
+                                            //}
+                                          //});
+
+                                          oArchiveObjects.setProperty("/toFiles", oDocuments.results);
+                                 
+                                          //   syncronize XML View with  Json model  
+                                          oArchiveObjects.refresh();
+                                        }
+                                    });  */
+
+                
+      },
+
+
+
+        onBeforeRebindTableExtension: function (oEvent) {
+
+
+          var oBindingParams = oEvent.getParameter("bindingParams");
+          oBindingParams.parameters = oBindingParams.parameters || {};
+            // Get source calling
+            var oSmartTable = oEvent.getSource();
+            // Get instance
+            var oSmartFilterBar = this.byId(oSmartTable.getSmartFilterId());
+
+     
+
+                            // Check is a real instance of Smart Filter
+            if (oSmartFilterBar instanceof SmartFilterBar) {
+
+              oBindingParams.filters.push(new sap.ui.model.Filter("UniqueId", "EQ", this._UniqueId));
+
+            }
+
+
+        },
+               /**
+                  * get base URL
+                  * @param   
+                  * @public
+                **/
+              
+               getBaseURL: function () {
+                var appId = "ch.unige.lrdocument"; 
+            
+                var appPath = appId.replaceAll(".", "/");
+                var appModulePath = jQuery.sap.getModulePath(appPath);
+                return appModulePath;
+            },
+
+
+            
+          /**
+            * Create [] Filter for OTP
+            * @param {object} oOTP
+            * @public
+          **/
+          
+          _set_Funds_Filter: function (oFund) {
+
+                var aFilters = [];
+                if ( oFund.results.length > 0 ) {
+
+                      for (var d = 0; d < oFund.results.length; d++) {
+                          aFilters.push(new sap.ui.model.Filter('Fund', sap.ui.model.FilterOperator.EQ, oFund.results[d].Fund))
+                      }
+      
+                  this._Fund_Filter =  [new sap.ui.model.Filter(aFilters, false)] ;
+  
+                } else {
+      
+                  this._Fund_Filter =  [];
+
+                    
+                };
+
+
+            },
+           
+    };
+});
